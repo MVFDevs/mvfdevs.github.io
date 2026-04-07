@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARGAMAX — Transporte de Carga para Construcción</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --negro: #0a0a0a;
+    --gris-oscuro: #111111;
+    --gris-medio: #1e1e1e;
+    --gris-borde: #2a2a2a;
+    --amarillo: #F5C000;
+    --amarillo-oscuro: #c49800;
+    --blanco: #f0ede8;
+    --gris-texto: #888;
+    --naranja: #E05A00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--negro);
+    color: var(--blanco);
+    font-family: 'Barlow', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* TEXTURA DE FONDO */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 60px;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gris-borde);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+    color: var(--amarillo);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--blanco); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gris-texto);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--amarillo); }
+
+  .nav-cta {
+    background: var(--amarillo);
+    color: var(--negro) !important;
+    padding: 10px 24px;
+    font-weight: 700 !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--blanco) !important; color: var(--negro) !important; }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 60px 100px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, rgba(10,10,10,0.97) 45%, rgba(10,10,10,0.4) 100%),
+      url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80') center/cover no-repeat;
+    z-index: 0;
+  }
+
+  .hero-stripe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 8px;
+    height: 100%;
+    background: repeating-linear-gradient(
+      180deg,
+      var(--amarillo) 0px, var(--amarillo) 40px,
+      var(--negro) 40px, var(--negro) 60px
+    );
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: var(--amarillo);
+    color: var(--negro);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    margin-bottom: 28px;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4.5rem, 10vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+  }
+
+  .hero-title .accent { color: var(--amarillo); }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #aaa;
+    line-height: 1.7;
+    max-width: 500px;
+    margin-bottom: 48px;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--amarillo);
+    color: var(--negro);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 2px solid var(--amarillo);
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--amarillo);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--blanco);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    text-decoration: none;
+    border: 2px solid var(--gris-borde);
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--blanco);
+  }
+
+  /* STATS */
+  .stats-bar {
+    position: relative;
+    z-index: 2;
+    background: var(--amarillo);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .stat-item {
+    padding: 32px 40px;
+    border-right: 2px solid rgba(0,0,0,0.15);
+    text-align: center;
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--negro);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.6);
+    margin-top: 4px;
+  }
+
+  /* SECCIONES GENERALES */
+  section { position: relative; z-index: 1; }
+
+  .section-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amarillo);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  /* SERVICIOS */
+  #servicios {
+    padding: 120px 60px;
+    background: var(--gris-oscuro);
+  }
+
+  .servicios-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 72px;
+  }
+
+  .servicios-header p {
+    max-width: 360px;
+    color: var(--gris-texto);
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  .servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .servicio-card {
+    background: var(--gris-medio);
+    padding: 48px 40px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .servicio-card:hover {
+    border-left-color: var(--amarillo);
+    background: #1a1a1a;
+    transform: translateY(-4px);
+  }
+
+  .servicio-icon {
+    font-size: 3rem;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .servicio-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    color: var(--gris-borde);
+    line-height: 1;
+    margin-bottom: 16px;
+    transition: color 0.3s;
+  }
+
+  .servicio-card:hover .servicio-num { color: var(--amarillo); opacity: 0.3; }
+
+  .servicio-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .servicio-desc {
+    color: var(--gris-texto);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  /* FLOTA */
+  #flota {
+    padding: 120px 60px;
+    background: var(--negro);
+  }
+
+  .flota-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+
+  .flota-header p {
+    color: var(--gris-texto);
+    max-width: 500px;
+    margin: 16px auto 0;
+    line-height: 1.7;
+  }
+
+  .flota-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .flota-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--gris-medio);
+    padding: 40px;
+    border-top: 3px solid var(--gris-borde);
+    transition: border-color 0.3s;
+  }
+
+  .flota-card:hover { border-top-color: var(--amarillo); }
+
+  .flota-tipo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .flota-cap {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--amarillo);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .flota-specs {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .flota-specs li {
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .flota-specs li::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--amarillo);
+    flex-shrink: 0;
+  }
+
+  /* POR QUÉ NOSOTROS */
+  #nosotros {
+    padding: 120px 60px;
+    background: var(--gris-oscuro);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .nosotros-img {
+    position: relative;
+  }
+
+  .nosotros-img-inner {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: url('https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5?w=800&q=80') center/cover;
+    filter: grayscale(30%);
+  }
+
+  .nosotros-img::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 60%;
+    height: 60%;
+    border: 3px solid var(--amarillo);
+    z-index: -1;
+  }
+
+  .nosotros-badge {
+    position: absolute;
+    top: 24px;
+    left: -24px;
+    background: var(--amarillo);
+    color: var(--negro);
+    padding: 20px 24px;
+    text-align: center;
+  }
+
+  .nosotros-badge .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .nosotros-badge .txt {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .nosotros-content { padding: 20px 0; }
+
+  .nosotros-content .section-title { margin-bottom: 24px; }
+
+  .nosotros-content p {
+    color: var(--gris-texto);
+    line-height: 1.8;
+    margin-bottom: 40px;
+  }
+
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(245,192,0,0.1);
+    border: 1px solid rgba(245,192,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .feature-text h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .feature-text p {
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* PROCESO */
+  #proceso {
+    padding: 120px 60px;
+    background: var(--negro);
+  }
+
+  .proceso-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .proceso-header p {
+    color: var(--gris-texto);
+    margin-top: 16px;
+  }
+
+  .proceso-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: relative;
+  }
+
+  .proceso-steps::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: var(--gris-borde);
+    z-index: 0;
+  }
+
+  .proceso-step {
+    text-align: center;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-num {
+    width: 72px;
+    height: 72px;
+    background: var(--gris-medio);
+    border: 2px solid var(--gris-borde);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--amarillo);
+    margin: 0 auto 28px;
+    transition: all 0.3s;
+  }
+
+  .proceso-step:hover .step-num {
+    background: var(--amarillo);
+    color: var(--negro);
+    border-color: var(--amarillo);
+  }
+
+  .step-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .step-desc {
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+    line-height: 1.6;
+  }
+
+  /* TESTIMONIOS */
+  #testimonios {
+    padding: 120px 60px;
+    background: var(--amarillo);
+  }
+
+  #testimonios .section-tag { color: var(--negro); opacity: 0.5; }
+  #testimonios .section-title { color: var(--negro); margin-bottom: 60px; }
+
+  .testimonios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .testimonio-card {
+    background: rgba(0,0,0,0.08);
+    padding: 40px;
+    transition: background 0.3s;
+  }
+
+  .testimonio-card:hover { background: rgba(0,0,0,0.15); }
+
+  .testimonio-quote {
+    font-size: 3rem;
+    font-family: 'Bebas Neue', sans-serif;
+    color: rgba(0,0,0,0.2);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .testimonio-texto {
+    font-size: 0.95rem;
+    color: rgba(0,0,0,0.75);
+    line-height: 1.7;
+    margin-bottom: 28px;
+    font-style: italic;
+  }
+
+  .testimonio-autor {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .autor-avatar {
+    width: 44px;
+    height: 44px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: var(--negro);
+  }
+
+  .autor-info strong {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--negro);
+    letter-spacing: 0.5px;
+  }
+
+  .autor-info span {
+    font-size: 0.8rem;
+    color: rgba(0,0,0,0.5);
+  }
+
+  /* CONTACTO */
+  #contacto {
+    padding: 120px 60px;
+    background: var(--gris-oscuro);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .contacto-info .section-title { margin-bottom: 20px; }
+
+  .contacto-info p {
+    color: var(--gris-texto);
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .contacto-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .dato-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--gris-borde);
+  }
+
+  .dato-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--amarillo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    color: var(--negro);
+  }
+
+  .dato-text strong {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--gris-texto);
+    margin-bottom: 2px;
+  }
+
+  .dato-text span {
+    font-size: 0.95rem;
+    color: var(--blanco);
+  }
+
+  /* FORM */
+  .contacto-form {
+    background: var(--gris-medio);
+    padding: 48px;
+    border-top: 3px solid var(--amarillo);
+  }
+
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gris-texto);
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--negro);
+    border: 1px solid var(--gris-borde);
+    color: var(--blanco);
+    padding: 14px 16px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--amarillo);
+  }
+
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .form-group select option { background: var(--negro); }
+
+  .form-submit {
+    width: 100%;
+    background: var(--amarillo);
+    color: var(--negro);
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .form-submit:hover {
+    background: var(--blanco);
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--negro);
+    border-top: 1px solid var(--gris-borde);
+    padding: 60px 60px 36px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+  }
+
+  .footer-brand .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 4px;
+    color: var(--amarillo);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .footer-brand p {
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+    line-height: 1.7;
+    max-width: 280px;
+  }
+
+  .footer-col h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blanco);
+    margin-bottom: 20px;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-col a {
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-col a:hover { color: var(--amarillo); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--gris-borde);
+    padding-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-bottom p {
+    font-size: 0.8rem;
+    color: var(--gris-texto);
+  }
+
+  .footer-bottom span {
+    color: var(--amarillo);
+  }
+
+  /* SCROLL ANIMATIONS */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    #hero { padding: 100px 24px 80px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    #servicios, #flota, #proceso { padding: 80px 24px; }
+    .servicios-header, .flota-grid, .servicios-grid, .testimonios-grid, .proceso-steps { grid-template-columns: 1fr; }
+    .servicios-header { flex-direction: column; gap: 20px; }
+    #nosotros { padding: 80px 24px; grid-template-columns: 1fr; }
+    .nosotros-img { display: none; }
+    #contacto { padding: 80px 24px; grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    footer { padding: 40px 24px 24px; }
+    #testimonios { padding: 80px 24px; }
+    .proceso-steps::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">CARGA<span>MAX</span></a>
+  <ul class="nav-links">
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#flota">Flota</a></li>
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#proceso">Proceso</a></li>
+    <li><a href="#contacto" class="nav-cta">Cotizar</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-stripe"></div>
+  <div class="hero-content">
+    <div class="hero-tag">⚠ Transporte de Carga Pesada</div>
+    <h1 class="hero-title">
+      MOVEMOS<br>
+      TU <span class="accent">OBRA.</span>
+    </h1>
+    <p class="hero-desc">
+      Transporte especializado de materiales y equipos para la industria de la construcción. Puntualidad, seguridad y la capacidad que tus proyectos necesitan.
+    </p>
+    <div class="hero-btns">
+      <a href="#contacto" class="btn-primary">Solicitar Cotización</a>
+      <a href="#servicios" class="btn-secondary">Ver Servicios</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">+850</div>
+    <div class="stat-label">Viajes completados</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">98%</div>
+    <div class="stat-label">Entrega puntual</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">+120</div>
+    <div class="stat-label">Empresas clientes</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">15</div>
+    <div class="stat-label">Años de experiencia</div>
+  </div>
+</div>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="servicios-header reveal">
+    <div>
+      <div class="section-tag">// Lo que hacemos</div>
+      <h2 class="section-title">NUESTROS<br>SERVICIOS</h2>
+    </div>
+    <p>Soluciones integrales de transporte diseñadas para las exigencias reales de la industria de la construcción.</p>
+  </div>
+  <div class="servicios-grid">
+    <div class="servicio-card reveal">
+      <div class="servicio-num">01</div>
+      <div class="servicio-nombre">🏗 Áridos y Materiales</div>
+      <p class="servicio-desc">Transporte de áridos, arena, tierra, ripio y materiales pétreos a obra en camiones tolva de alta capacidad.</p>
+    </div>
+    <div class="servicio-card reveal">
+      <div class="servicio-num">02</div>
+      <div class="servicio-nombre">🔩 Carga Sobredimensionada</div>
+      <p class="servicio-desc">Traslado de maquinaria pesada, estructuras metálicas y equipos sobredimensionados con permisos y escolta.</p>
+    </div>
+    <div class="servicio-card reveal">
+      <div class="servicio-num">03</div>
+      <div class="servicio-nombre">🧱 Prefabricados</div>
+      <p class="servicio-desc">Transporte de elementos de hormigón prefabricado: losas, vigas, pilares y módulos estructurales.</p>
+    </div>
+    <div class="servicio-card reveal">
+      <div class="servicio-num">04</div>
+      <div class="servicio-nombre">⛽ Combustible en Obra</div>
+      <p class="servicio-desc">Suministro y transporte de combustible directamente a faenas y obras activas con camiones cisterna.</p>
+    </div>
+    <div class="servicio-card reveal">
+      <div class="servicio-num">05</div>
+      <div class="servicio-nombre">♻ Retiro de Escombros</div>
+      <p class="servicio-desc">Servicio de retiro, transporte y disposición final de escombros y residuos de construcción.</p>
+    </div>
+    <div class="servicio-card reveal">
+      <div class="servicio-num">06</div>
+      <div class="servicio-nombre">📦 Fletes Especializados</div>
+      <p class="servicio-desc">Coordinación de fletes complejos con rutas diseñadas para acceder a obras en zonas de difícil acceso.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FLOTA -->
+<section id="flota">
+  <div class="flota-header reveal">
+    <div class="section-tag">// Equipamiento</div>
+    <h2 class="section-title">NUESTRA FLOTA</h2>
+    <p>Vehículos modernos, con mantención al día y operados por conductores certificados.</p>
+  </div>
+  <div class="flota-grid">
+    <div class="flota-card reveal">
+      <div class="flota-tipo">🚛 Camión Tolva</div>
+      <div class="flota-cap">Capacidad: 12 — 20 ton</div>
+      <ul class="flota-specs">
+        <li>Áridos, tierra, ripio, arena</li>
+        <li>Descarga hidráulica trasera</li>
+        <li>GPS en tiempo real</li>
+        <li>Disponibilidad 6 días/semana</li>
+      </ul>
+    </div>
+    <div class="flota-card reveal">
+      <div class="flota-tipo">🚚 Plataforma Baja</div>
+      <div class="flota-cap">Capacidad: hasta 45 ton</div>
+      <ul class="flota-specs">
+        <li>Maquinaria y equipos pesados</li>
+        <li>Rampas de carga integradas</li>
+        <li>Permisos especiales incluidos</li>
+        <li>Escolta disponible</li>
+      </ul>
+    </div>
+    <div class="flota-card reveal">
+      <div class="flota-tipo">🏗 Grúa Hidráulica</div>
+      <div class="flota-cap">Alcance: hasta 30 m</div>
+      <ul class="flota-specs">
+        <li>Carga y descarga en obra</li>
+        <li>Prefabricados y estructuras</li>
+        <li>Operadores certificados</li>
+        <li>Cámara de monitoreo</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros">
+  <div class="nosotros-img reveal">
+    <div class="nosotros-img-inner"></div>
+    <div class="nosotros-badge">
+      <div class="num">15</div>
+      <div class="txt">Años en<br>el rubro</div>
+    </div>
+  </div>
+  <div class="nosotros-content reveal">
+    <div class="section-tag">// Por qué elegirnos</div>
+    <h2 class="section-title">COMPROMETIDOS<br>CON TU OBRA</h2>
+    <p>Somos una empresa familiar con más de 15 años en el transporte de carga para la construcción. Conocemos los plazos de obra, las urgencias y la exigencia de cada proyecto.</p>
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-icon">⏱</div>
+        <div class="feature-text">
+          <h4>Puntualidad garantizada</h4>
+          <p>Entendemos que en construcción el tiempo es dinero. Nos comprometemos con horarios reales.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📍</div>
+        <div class="feature-text">
+          <h4>Seguimiento GPS en vivo</h4>
+          <p>Monitoreo en tiempo real de toda nuestra flota. Siempre sabrás dónde está tu carga.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">✅</div>
+        <div class="feature-text">
+          <h4>Documentación al día</h4>
+          <p>Todos nuestros vehículos y conductores cuentan con permisos, seguros y certificaciones vigentes.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📞</div>
+        <div class="feature-text">
+          <h4>Coordinación directa</h4>
+          <p>Ejecutivo de cuenta dedicado a tu proyecto, sin intermediarios ni call centers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESO -->
+<section id="proceso">
+  <div class="proceso-header reveal">
+    <div class="section-tag">// Cómo trabajamos</div>
+    <h2 class="section-title">PROCESO SIMPLE</h2>
+    <p>Del contacto a la entrega en obra, sin complicaciones.</p>
+  </div>
+  <div class="proceso-steps">
+    <div class="proceso-step reveal">
+      <div class="step-num">01</div>
+      <div class="step-title">Solicitud</div>
+      <p class="step-desc">Nos contactas con los detalles de tu carga: tipo, peso, origen y destino.</p>
+    </div>
+    <div class="proceso-step reveal">
+      <div class="step-num">02</div>
+      <div class="step-title">Cotización</div>
+      <p class="step-desc">En menos de 2 horas recibes una cotización clara, sin letras chicas.</p>
+    </div>
+    <div class="proceso-step reveal">
+      <div class="step-num">03</div>
+      <div class="step-title">Coordinación</div>
+      <p class="step-desc">Coordinamos fecha, hora y logística directamente con tu jefatura de obra.</p>
+    </div>
+    <div class="proceso-step reveal">
+      <div class="step-num">04</div>
+      <div class="step-title">Entrega</div>
+      <p class="step-desc">Transportamos y entregamos en obra, con guía de despacho y seguimiento incluido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section id="testimonios">
+  <div class="section-tag">// Lo que dicen nuestros clientes</div>
+  <h2 class="section-title">CONFIANZA<br>EN CADA VIAJE</h2>
+  <div class="testimonios-grid">
+    <div class="testimonio-card">
+      <div class="testimonio-quote">"</div>
+      <p class="testimonio-texto">Llevamos más de 3 años trabajando con CargaMax en nuestros proyectos de edificación. Puntualidad total y nunca nos han fallado en un despacho urgente.</p>
+      <div class="testimonio-autor">
+        <div class="autor-avatar">CR</div>
+        <div class="autor-info">
+          <strong>Carlos Rodríguez</strong>
+          <span>Jefe de Obra, Constructora Bravo</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonio-card">
+      <div class="testimonio-quote">"</div>
+      <p class="testimonio-texto">El traslado de nuestra maquinaria fue impecable. Gestionaron todos los permisos y la escolta sin que nosotros tuviéramos que preocuparnos de nada.</p>
+      <div class="testimonio-autor">
+        <div class="autor-avatar">MP</div>
+        <div class="autor-info">
+          <strong>Marcela Ponce</strong>
+          <span>Gerente Operaciones, Rengo Maq.</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonio-card">
+      <div class="testimonio-quote">"</div>
+      <p class="testimonio-texto">El precio es justo y el servicio es excelente. Lo que más valoro es que siempre hay alguien disponible para coordinar, incluso un sábado en la mañana.</p>
+      <div class="testimonio-autor">
+        <div class="autor-avatar">AF</div>
+        <div class="autor-info">
+          <strong>Andrés Fuentes</strong>
+          <span>Encargado de Compras, Inmob. Del Sur</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto">
+  <div class="contacto-info reveal">
+    <div class="section-tag">// Hablemos</div>
+    <h2 class="section-title">SOLICITA TU<br>COTIZACIÓN</h2>
+    <p>Cuéntanos qué necesitas mover y en cuánto tiempo. Te respondemos en menos de 2 horas en horario hábil.</p>
+    <div class="contacto-datos">
+      <div class="dato-item">
+        <div class="dato-icon">📞</div>
+        <div class="dato-text">
+          <strong>Teléfono / WhatsApp</strong>
+          <span>+56 9 1234 5678</span>
+        </div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-icon">✉</div>
+        <div class="dato-text">
+          <strong>Correo electrónico</strong>
+          <span>contacto@cargamax.cl</span>
+        </div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-icon">📍</div>
+        <div class="dato-text">
+          <strong>Cobertura</strong>
+          <span>Región Metropolitana y regiones</span>
+        </div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-icon">🕐</div>
+        <div class="dato-text">
+          <strong>Horario de atención</strong>
+          <span>Lunes a Sábado, 07:00 — 19:00 hrs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="contacto-form reveal">
+    <div class="form-title">FORMULARIO DE CONTACTO</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" placeholder="Tu nombre">
+      </div>
+      <div class="form-group">
+        <label>Empresa</label>
+        <input type="text" placeholder="Tu empresa">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" placeholder="+56 9 ···· ····">
+      </div>
+      <div class="form-group">
+        <label>Correo</label>
+        <input type="email" placeholder="correo@empresa.cl">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tipo de servicio</label>
+      <select>
+        <option value="">Seleccionar...</option>
+        <option>Áridos y materiales</option>
+        <option>Carga sobredimensionada</option>
+        <option>Prefabricados</option>
+        <option>Retiro de escombros</option>
+        <option>Combustible en obra</option>
+        <option>Otro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Detalle del requerimiento</label>
+      <textarea placeholder="Descríbenos qué necesitas transportar, dónde y cuándo..."></textarea>
+    </div>
+    <button class="form-submit">→ Enviar Solicitud</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo">CARGAMAX</a>
+      <p>Transporte de carga especializado para la industria de la construcción. Más de 15 años moviendo proyectos en Chile.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Servicios</h4>
+      <ul>
+        <li><a href="#">Áridos y materiales</a></li>
+        <li><a href="#">Carga sobredimensionada</a></li>
+        <li><a href="#">Prefabricados</a></li>
+        <li><a href="#">Retiro de escombros</a></li>
+        <li><a href="#">Combustible en obra</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Sobre nosotros</a></li>
+        <li><a href="#">Nuestra flota</a></li>
+        <li><a href="#">Certificaciones</a></li>
+        <li><a href="#">Trabaja con nosotros</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="#">+56 9 1234 5678</a></li>
+        <li><a href="#">contacto@cargamax.cl</a></li>
+        <li><a href="#">WhatsApp</a></li>
+        <li><a href="#">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 <span>CargaMax</span>. Todos los derechos reservados.</p>
+    <p>Diseño: <span>Industrial & Confiable</span></p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Nav activo en scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id');
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--amarillo)' : '';
+    });
+  });
+
+  // Form submit
+  document.querySelector('.form-submit').addEventListener('click', function() {
+    this.textContent = '✓ Solicitud enviada';
+    this.style.background = '#1a1a1a';
+    this.style.color = 'var(--amarillo)';
+    this.style.border = '2px solid var(--amarillo)';
+    setTimeout(() => {
+      this.textContent = '→ Enviar Solicitud';
+      this.style.background = '';
+      this.style.color = '';
+      this.style.border = '';
+    }, 3000);
+  });
+</script>
+</body>
+</html>
